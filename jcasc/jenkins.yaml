@@ -5,16 +5,44 @@ jenkins:
   authorizationStrategy:
     loggedInUsersCanDoAnything:
       allowAnonymousRead: false
+  clouds:
+  - docker:
+      dockerApi:
+        connectTimeout: 60
+        dockerHost:
+          uri: "tcp://socat:2375"
+        readTimeout: 60
+      name: "docker"
+      templates:
+      - connector:
+          attach:
+            user: "root"
+        dockerTemplateBase:
+          cpuPeriod: 0
+          cpuQuota: 0
+          image: "jenkins/agent"
+        instanceCapStr: "0"
+        labelString: "default"
+        name: "default"
+        pullStrategy: PULL_ALWAYS
+        pullTimeout: 300
   crumbIssuer:
     standard:
       excludeClientIPFromCrumb: false
   disableRememberMe: false
   labelAtoms:
   - name: "built-in"
+  - name: "default"
+  - name: "default-000eq48c64r8u"
+  - name: "default-000eq4div6hxn"
+  - name: "default-000eq4i3bnm4b"
+  - name: "default-000eqairyq9h3"
+  - name: "master"
+  labelString: "master"
   markupFormatter: "plainText"
-  mode: NORMAL
+  mode: EXCLUSIVE
   myViewsTabBar: "standard"
-  numExecutors: 2
+  numExecutors: 0
   primaryView:
     all:
       name: "all"
@@ -31,6 +59,7 @@ jenkins:
       - id: "admin"
         name: "admin"
         properties:
+        - "favorite"
         - "myView"
         - preferredProvider:
             providerId: "default"
@@ -64,6 +93,13 @@ security:
   sSHD:
     port: -1
 unclassified:
+  bitbucketEndpointConfiguration:
+    endpoints:
+    - bitbucketCloudEndpoint:
+        enableCache: false
+        manageHooks: false
+        repositoriesCacheDuration: 0
+        teamCacheDuration: 0
   buildDiscarders:
     configuredBuildDiscarders:
     - "jobBuildDiscarder"
