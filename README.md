@@ -7,8 +7,37 @@ Prerequisites
 References
 
 - https://github.com/jenkinsci/configuration-as-code-plugin/blob/master/README.md
+- https://github.com/hms-dbmi/avillachlab-jenkins/blob/master/jenkins-docker/Dockerfile
 
-# (1) Config as Code Plugin
+# How to run this container
+
+## (1) Start it
+
+```bash
+docker compose up -d
+```
+
+...making sure to pull the one time password out of the logs
+
+## (2) Go through Jenkins setup
+
+Use the password out of the logs to unlock it, and then install recommended plugins.
+
+## (3) Config as Code Plugin
+
+Install this plugin because it does not work via plugins.txt
+
+![01](wiki/01.png)
+
+## (4) Restart
+
+You will now see that the config as code plugin is working:
+
+![01](wiki/03.png)
+
+# How I set up this image step by step
+
+## (1) Config as Code Plugin
 
 ![01](wiki/01.png)
 
@@ -151,7 +180,7 @@ tool:
     settingsProvider: "standard"
 ```
 
-# (2) Restart
+## (2) Restart
 
 docker-compose.yml
 
@@ -184,7 +213,7 @@ http://localhost:8080/manage/configuration-as-code/
 
 ![01](wiki/03.png)
 
-# (3) Reload
+## (3) Reload
 
 jenkins.yaml
 
@@ -198,7 +227,41 @@ http://localhost:8080/manage/configure
 
 ![01](wiki/04.png)
 
+## (4) Plugins
 
+Dockerfile
 
+```dockerfile
+FROM jenkins/jenkins:lts
 
+COPY plugins/plugins.txt /var/plugins/plugins.txt
+
+COPY jcasc/jenkins.yaml /var/jcasc/jenkins.yaml
+
+RUN jenkins-plugin-cli -f /var/plugins/plugins.txt
+```
+
+docker-compose.yml
+
+```yaml
+version: '3.8'
+services:
+  jenkins:
+    privileged: true
+    user: root
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    ports:
+     - 8080:8080
+     - 50000:50000
+    container_name: jenkins_jcasc
+    volumes:
+     - /var/run/docker.sock:/var/run/docker.sock
+     - ./jenkins_home:/var/jenkins_home
+     - ./jcasc:/var/jcasc
+     - ./plugins:/var/plugins
+    environment:
+     - CASC_JENKINS_CONFIG=/var/jcasc
+```
 
